@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html lang = "en-GB">
+<head>
+  <meta charset = "utf-8">
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+  <link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/start/jquery-ui.css" type="text/css" rel="Stylesheet" />
+  <link rel="stylesheet" type="text/css" href="css/main.css">
+  <script src="http://classes.engineering.wustl.edu/cse330/content/calendar.min.js"> </script>
+  <title> Calendar </title>
+</head>
+
+<body>
+
+  <form id = "login_function">
+     <p class = "login"> Use Your Username and Password to Login:
+     Username: <input type = "text" class = "Inputbox" id = "username"/>
+     Password: <input type = "password" class = "Inputbox" id = "password"/>
+     <button type = "button" id = "login">Log In</button> </p>
+     <input type = "hidden" id = "token" value = "">
+  </form>
+
+  <form id = "register_function">
+     <p class = "login"> Do not have an account? Please register here
+     Username: <input type = "text" class = "Inputbox" id = "newUsername"/>
+     Password: <input type = "password" class = "Inputbox" id = "newPassword"/>
+     <button type = "button" id = "register">Register</button>
+  </form>
+
+  <form id = "changeUsername">
+     <p class = "content">Change Username <button type = "button" id = "changeUsername_button">Change Username</button></p>
+   </form>
+
+   <form id = "changePassword">
+      <p class = "content">Change Password <button type = "button" id = "changePassword_button">Change Password</button></p>
+   </form>
+
+  <form id = "logout_function">
+    <p class = "content">Log out here:
+    <button type = "button" id = "logout">Log Out</button></p>
+  </form>
+  <hr />
+
+<p class = "title"> My Calendar  </p>
+<div class = "time1" > Current Time: </div>
+<div id = "time" class = "time2"></div>
+<button type = "button" id="showTime_button">Update Time</button>
+
+<hr style="border: 0.5px solid grey;" />
+
+<button class = "button1" type="button" id = "pre_month_btn"> Previous Month </button>
+<button class = "button2" type="button" id = "next_month_btn"> Next Month </button>
+
+<p id = "displayMonth"> </p>
+
+<script>
+
+//get the info of current month
+var token = null;
+var signin = false;
+var temp = new Date();
+var month_temp = temp.getMonth();
+var year_temp = temp.getYear() + 1900;
+var currentMonth = new Month(year_temp, month_temp);
+
+// Change the month when the "next" button is pressed
+document.getElementById("next_month_btn").addEventListener("click", function(event){
+	currentMonth = currentMonth.nextMonth(); // Previous month would be currentMonth.prevMonth()
+	updateCalendar(); // Whenever the month is updated, we'll need to re-render the calendar in HTML
+}, false);
+
+// Change the month when the "previous" button is pressed
+document.getElementById("pre_month_btn").addEventListener("click", function(event){
+	currentMonth = currentMonth.prevMonth(); // next month would be currentMonth.nextMonth()
+	updateCalendar(); // Whenever the month is updated, we'll need to re-render the calendar in HTML
+}, false);
+
+//bind the updateCalendar method in order to make it excuate automatically when the page is loadeds
+document.addEventListener("DOMContentLoaded", function(){
+  $("#login_function").show();
+  $("#register_function").show();
+  $("#logout_function").hide();
+  $("#createEvent_div").hide();
+  $("#createEvent_function").hide();
+  $("#showEvent_function").hide();
+  $("#shareEvent_function").hide();
+  $("#showTag_div").hide();
+  $("#changeUsername").hide();
+  $("#changePassword").hide();
+  $("#changeUsername_function").hide();
+  $("#changePassword_function").hide();
+  updateCalendar();
+},false);
+
+</script>
+
+
+<hr />
+
+<div id="createEvent_div">
+ <form id = "creatEvent">
+   <p class = "content">Create New Event <button type = "button" id = "createEvent_button">Create New Event</button></p>
+ </form>
+</div>
+
+<div id="showTag_div">
+ <form id = "showTag_function">
+   <p class = "content">Show Tag Event
+    <select id="showTagEvent">
+      <option>Work</option>
+      <option>Study</option>
+      <option>life</option>
+      <option>other</option>
+   </select>
+   <button type = "button" id = "showTagEvent_button">Show Tag Event</button>
+   <button type = "button" id = "clearEvent_button">Clear</button></p>
+   <div id="tagDetail"></div>
+ </form>
+</div>
+
+
+<div id = "createEvent_function">
+  <form id = "createEventForm">
+    <p class="content">Create new Event</p>
+    <p class="content">Title <input type="text" id="createEventTitle" maxlength=50 required></p>
+    <p class="content">Date <input type="date" id="createEventDate" required></p>
+    <p class="content">Location <input type="text" id="creatEventLocation"></p>
+    <p class="content">Tag</p>
+    <select id="createEventTag">
+      <option>Work</option>
+      <option>Study</option>
+      <option>life</option>
+      <option>other</option>
+    </select>
+    <p class="content">Time <input type="text" id="createEventTime"></p>
+  </form>
+</div>
+
+<div id="showEvent_function">
+  <form id="showEventForm">
+    <p class="content">Event Detail</p>
+    <p class="content">Id <input type="text" id="showEventId" disabled></P>
+    <p class="content">Title <input type="text" id="showEventTitle" maxlength=50 required></P>
+    <p class="content">Date <input type="date" id="showEventDate" required></p>
+    <p class="content">Location <input type="text" id="showEventLocation"></p>
+    <p class="content">Tag</p>
+    <select id="showEventTag">
+      <option>Work</option>
+      <option>Study</option>
+      <option>life</option>
+      <option>other</option>
+    </select>
+    <p class="content">Time <input type="text" id="showEventTime"></p>
+    <input type = "hidden" id = "showToken" value = "">
+  </form>
+</div>
+
+<div id="shareEvent_function">
+ <form id = "shareEventForm">
+   <p class = "content">Share Event to Other User <input type = "text" id = "shareUsername"></p>
+ </form>
+</div>
+
+<div id="changeUsername_function">
+  <form id = "changeUsernameForm">
+    <p class="content">Change Username</p>
+    <p class = "content">Old Username <input type="text" id="oldUsername"></p>
+    <p class="content">Password <input type="password" id="unchangePassword"></P>
+    <p class="content">New Username <input type="text" id="newChangeUsername"></p>
+  </form>
+</div>
+
+<div id="changePassword_function">
+  <form id = "changePasswordForm">
+    <p class="content">Change Password</p>
+    <p class = "content">Username <input type="text" id="unchangeUsername"></p>
+    <p class="content">Old Password <input type="password" id="oldPassword"></P>
+    <p class="content">New Password <input type="password" id="newChangePassword"></p>
+  </form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+
+<script src="changeMonth.js"> </script>
+<script src="createEvent.js"></script>
+<script src="showEventDetail.js"></script>
+<script src="showTagEvent.js"></script>
+<script src="editEvent.js"></script>
+<script src="deleteEvent.js"></script>
+<script src="shareEvent.js"></script>
+<script src="login.js"></script>
+<script src="register.js"></script>
+<script src="logout.js"></script>
+<script src ="changeUsername.js"></script>
+<script src ="changePassword.js"></script>
+<script src="starMark.js"> </script>
+<script src="starUnmark.js"> </script>
+<script src="changeMonth.js"> </script>
+
+</body>
+</html>
